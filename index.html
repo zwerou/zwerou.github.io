@@ -2,48 +2,159 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>群内链接聚合</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 增大字体大小 */
+        :root {
+            --primary-color: #2196F3;
+            --secondary-color: #64B5F6;
+            --accent-color: #FF9800;
+        }
+
         body {
-            font-size: 35px;
-            border: 2px solid #89CFF0;
-            padding: 20px;
-            color: #89CFF0; /* 修正多余分号问题 */
+            font-family: 'Roboto', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: #333;
+            -webkit-text-size-adjust: 100%;
         }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
         h1 {
-            font-size: 45px;
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-        p {
-            font-size: 40px;
+
+        .description {
+            font-size: 1.4rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
         }
-        /* 增加链接间的间隔 */
-        ul li {
-            margin-bottom: 100px;
-            font-weight: bold; /* 用CSS替代<b>标签 */
+
+        .link-list {
+            list-style: none;
+            padding: 0;
         }
-        a {
-            color: #404040;
-            border: 2px solid #89CFF0;
-            font-size: 55px;
-            text-decoration: none; /* 移除默认下划线 */
-            padding: 5px; /* 增加文字和边框间距 */
+
+        .link-item {
+            margin-bottom: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .link-item:hover {
+            transform: translateX(10px);
+        }
+
+        .link {
+            display: block;
+            padding: 1.2rem 1.8rem;
+            background: white;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #444;
+            font-size: 1.6rem;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .link:hover {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 20px rgba(33, 150, 243, 0.4);
+            border-left-color: var(--accent-color);
+        }
+
+        .disabled-link {
+            background: #f8f9fa;
+            color: #999;
+            cursor: not-allowed;
+            border-left-color: #ddd;
+        }
+
+        .update-notice {
+            text-align: center;
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px dashed #ddd;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            .link {
+                font-size: 1.4rem;
+                padding: 1rem 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>欢迎来到本群的链接聚合页面</h1>
-    <p>点击以下文字将会跳转到相应网站：</p>
-    <ul>
-        <li><a href="https://www.blueos.com.cn/" target="_blank">BlueOS蓝河操作系统官方网站</a></li>
-        <li><a href="https://b23.tv/ru6OcuU" target="_blank">【小赵dc的个人空间-哔哩哔哩】</a></li>
-         <li><a href="https://www.123912.com/s/MJC9jv-PoxQH" target="_blank">BlueOS第三方应用，所有软件解释权归蓝盒助手所有</a></li>
-        <li><a href="https://www.123865.com/s/MJC9jv-hXmQH" target="_blank">(全能工具箱)(有各种实用功能可下载音乐)</a></li>
-        <li><a href="-" target="_blank">暂无</a></li>
-        <li><a href="https://gwerou.lanpw.com/iCSC92nm7jsh" target="_blank">开源阅读(书源在压缩包内也可添加其他书源)</a></li>
-        <li><a href="https://b23.tv/BkH8AtW" target="_blank">开源阅读教程视频</a></li>
-        <li><a href="——" target="_blank">暂无</a></li>
-    </ul>
-    <p>点击上面的文字，你将被导向到相应的免费链接。网站比较简陋请见谅(•ᴗ•)❤【不定期更新】</p>
+    <div class="container">
+        <h1>📚 群内资源导航</h1>
+        <p class="description">点击下方卡片即可访问对应资源</p>
+        
+        <ul class="link-list">
+            <li class="link-item">
+                <a href="https://www.blueos.com.cn/" class="link" target="_blank">
+                    BlueOS 蓝河操作系统官网
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="https://b23.tv/ru6OcuU" class="link" target="_blank">
+                    🎥 小赵dc的B站空间
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="https://www.123912.com/s/MJC9jv-PoxQH" class="link" target="_blank">
+                    📦 蓝盒助手应用中心
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="https://www.123865.com/s/MJC9jv-hXmQH" class="link" target="_blank">
+                    🧰 全能工具箱（音乐下载）
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="javascript:void(0)" class="link disabled-link">
+                    ⏳ 资源筹备中...
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="https://gwerou.lanpw.com/iCSC92nm7jsh" class="link" target="_blank">
+                    📖 开源阅读（含书源）
+                </a>
+            </li>
+            <li class="link-item">
+                <a href="https://b23.tv/BkH8AtW" class="link" target="_blank">
+                    ▶️ 开源阅读使用教程
+                </a>
+            </li>
+        </ul>
+
+        <p class="update-notice">
+            🎨 持续更新中... 欢迎提供建议！<br>
+            <small style="color:#888;font-size:1.2rem;">最后更新：2025年3月</small>
+        </p>
+    </div>
 </body>
 </html>
