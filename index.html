@@ -1494,8 +1494,8 @@
             showToast('请选择.rpk文件', 'error');
             return false;
         }
-        if (file.size > 10 * 1024 * 1024) { // 10MB限制
-            showToast('文件大小不能超过10MB', 'error');
+        if (file.size > 3 * 1024 * 1024) { // 3MB限制
+            showToast('文件大小不能超过3MB', 'error');
             return false;
         }
         return true;
@@ -1513,10 +1513,18 @@
                 throw new Error('无法找到 manifest.json 文件');
             }
             
-            // 读取图标文件
-            const iconFile = contents.file('logo.png') || contents.file('icon.png');
+            const manifestContent = await manifestFile.async('text');
+            const manifest = JSON.parse(manifestContent);
+            
+            // 尝试在根目录查找图标文件
+            const allFiles = Object.keys(contents.files);
+            const iconFile = allFiles
+                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|gif)$/i.test(path))
+                .map(path => contents.file(path))
+                .find(file => file !== null);
+                
             if (!iconFile) {
-                throw new Error('无法找到应用图标(logo.png或icon.png)');
+                throw new Error('无法在根目录找到图标文件');
             }
             
             // 转换图标为 base64
@@ -1526,9 +1534,6 @@
                 reader.onloadend = () => resolve(reader.result);
                 reader.readAsDataURL(iconBlob);
             });
-            
-            const manifestContent = await manifestFile.async('text');
-            const manifest = JSON.parse(manifestContent);
             
             // 验证必填字段
             if (!manifest.package) throw new Error('缺少必填字段: package');
