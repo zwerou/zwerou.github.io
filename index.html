@@ -24,14 +24,13 @@
         body {
             font-family: 'Segoe UI', system-ui;
             background: var(--background);
-            padding: 15px;
+            padding: 20px;
             padding-bottom: 80px;
         }
 
         .container {
-            max-width: 960px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 15px;
         }
 
         /* 页面容器样式 */
@@ -962,7 +961,7 @@
                 .from(SUPABASE.STORAGE_BUCKET)
                 .getPublicUrl(filePath);
 
-            // 创建应用记录
+            // 创建应用记录 - 移除 metadata 字段
             const { error: dbError } = await supabase
                 .from('applications')
                 .insert({
@@ -973,14 +972,6 @@
                     download_url: urlData.publicUrl,
                     icon_url: appData.icon,
                     author: currentUser.id,
-                    metadata: {
-                        features: appData.features,
-                        permissions: appData.permissions,
-                        appCategory: appData.appCategory,
-                        deviceTypeList: appData.deviceTypeList,
-                        distributionRules: appData.distributionRules,
-                        file_size: file.size
-                    },
                     created_at: new Date().toISOString()
                 });
             
@@ -1015,14 +1006,16 @@
             const appInfo = await parseRPK(file);
             if (!appInfo) throw new Error('无法解析应用信息');
 
+            // 合并作者信息到描述中
+            const finalDescription = `作者: ${author}\n${description}`;
+
             // 合并表单数据和解析数据
             const newApp = {
                 ...appInfo,
                 name: name,
                 package: packageName,
                 version: version,
-                description: description,
-                author: author
+                description: finalDescription
             };
 
             await saveApplication(newApp, file);
