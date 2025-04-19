@@ -24,13 +24,14 @@
         body {
             font-family: 'Segoe UI', system-ui;
             background: var(--background);
-            padding: 20px;
+            padding: 15px;
             padding-bottom: 80px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 960px;
             margin: 0 auto;
+            padding: 0 15px;
         }
 
         /* 页面容器样式 */
@@ -403,36 +404,6 @@
             display: block;
         }
 
-        .comment-form {
-            margin: 20px 0;
-        }
-
-        .comment-form textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            resize: vertical;
-        }
-
-        .comment-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            color: #666;
-        }
-
-        .comment-content {
-            line-height: 1.5;
-        }
-
         #login-section {
             margin-top: 20px;
         }
@@ -722,7 +693,6 @@
     let myApps = [];
     let selectedFile = null;
     let currentUser = null;
-    let commentsChannel = null;
 
     // 配置
     const CONFIG = {
@@ -1351,107 +1321,9 @@
                 </button>
                 ` : ''}
             </div>
-            
-            <div class="detail-section">
-                <h3 class="detail-title">评论区</h3>
-                ${currentUser ? `
-                <div class="comment-form">
-                    <textarea id="comment-input" placeholder="写下你的评论..."></textarea>
-                    <button class="btn btn-primary" onclick="submitComment('${app.id}')">发表评论</button>
-                </div>
-                ` : '<p>登录后可以发表评论</p>'}
-                <div id="comments-list"></div>
-            </div>
         `;
-
-        // 加载评论
-        const comments = await loadComments(app.id);
-        const commentsList = document.getElementById('comments-list');
-        
-        commentsList.innerHTML = comments.length ? comments.map(comment => `
-            <div class="comment-item">
-                <div class="comment-header">
-                    <span class="comment-author">${comment.users?.email || '匿名用户'}</span>
-                    <span class="comment-time">${new Date(comment.created_at).toLocaleString()}</span>
-                </div>
-                <div class="comment-content">${comment.content}</div>
-            </div>
-        `).join('') : '<p>暂无评论</p>';
-        
-        // 设置实时评论更新
-        if (commentsChannel) commentsChannel.unsubscribe();
-        commentsChannel = supabase
-            .channel(`comments:${app.id}`)
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'comments',
-                filter: `app_id=eq.${app.id}`
-            }, (payload) => {
-                const newComment = `
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <span class="comment-author">${payload.new.users?.email || '匿名用户'}</span>
-                            <span class="comment-time">${new Date(payload.new.created_at).toLocaleString()}</span>
-                        </div>
-                        <div class="comment-content">${payload.new.content}</div>
-                    </div>
-                `;
-                commentsList.insertAdjacentHTML('afterbegin', newComment);
-            })
-            .subscribe();
     }
-
-    // 提交评论
-    async function submitComment(appId) {
-        const content = document.getElementById('comment-input').value.trim();
-        if (!content) {
-            showToast('请输入评论内容', 'error');
-            return;
-        }
-        
-        try {
-            await addComment(appId, content);
-            document.getElementById('comment-input').value = '';
-        } catch (error) {
-            showToast('评论发布失败: ' + error.message, 'error');
-        }
-    }
-
-    // 添加评论
-    async function addComment(appId, content) {
-        const { error } = await supabase
-            .from('comments')
-            .insert([{
-                app_id: appId,
-                user_id: currentUser.id,
-                content: content,
-                created_at: new Date()
-            }]);
-            
-        if (error) throw error;
-        showToast('评论发布成功', 'success');
-    }
-
-    // 加载应用评论
-    async function loadComments(appId) {
-        const { data: comments, error } = await supabase
-            .from('comments')
-            .select(`
-                id,
-                content,
-                created_at,
-                users:user_id (
-                    email,
-                    id
-                )
-            `)
-            .eq('app_id', appId)
-            .order('created_at', { ascending: false });
-            
-        return comments || [];
-    }
-
+    
     // 页面切换
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(page => {
@@ -1587,7 +1459,6 @@
 
     // 关闭弹窗函数
     function closeModal() {
-        if (commentsChannel) commentsChannel.unsubscribe();
         document.getElementById('detail-modal').style.display = 'none';
     }
 
