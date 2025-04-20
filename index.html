@@ -478,6 +478,100 @@
             background: rgba(0,0,0,0.5);
             z-index: 1000;
         }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 5px;
+                padding-bottom: 60px;
+            }
+
+            .container {
+                width: 100%;
+                padding: 0 5px;
+            }
+
+            .app-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .app-card {
+                padding: 8px;
+            }
+
+            .app-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                margin-bottom: 8px;
+            }
+
+            .app-name {
+                font-size: 12px;
+                margin-bottom: 4px;
+            }
+
+            .app-meta {
+                font-size: 10px;
+            }
+
+            .header {
+                padding: 15px 0;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .form-group input[type="text"],
+            .form-group input[type="file"],
+            .form-group textarea {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 12px;
+            }
+
+            .footer-nav {
+                padding: 8px 0;
+            }
+
+            .nav-icon {
+                font-size: 18px;
+            }
+
+            .nav-link {
+                font-size: 10px;
+            }
+
+            .user-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .category-tag {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+
+            #search-input {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -512,7 +606,7 @@
                     <li class="feature-item" id="upload-feature">
                         <span class="feature-icon">📤</span>
                         <span>上传应用</span>
-                        <input type="file" id="file-input" accept=".rpk" style="display: none;">
+                        <input type="file" id="file-input" accept=".rpk" multiple="false" style="display: none;">
                     </li>
                     <li class="feature-item" id="my-apps-feature">
                         <span class="feature-icon">📱</span>
@@ -552,7 +646,7 @@
                 </div>
                 <div class="form-group">
                     <label for="app-file">选择.rpk文件</label>
-                    <input type="file" id="app-file" accept=".rpk">
+                    <input type="file" id="app-file" accept=".rpk" multiple="false">
                 </div>
                 <div class="upload-preview" id="upload-preview">
                     <p>预览将在这里显示</p>
@@ -991,13 +1085,39 @@
     // 处理手动上传
     async function handleManualUpload() {
         try {
-            const name = document.getElementById('app-name').value.trim();
+            const fileInput = document.getElementById('app-file');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                showToast('请选择.rpk文件', 'error');
+                return;
+            }
+            if (files.length > 1) {
+                showToast('每次只能上传一个文件', 'error');
+                fileInput.value = '';
+                return;
+            }
+
+            const file = files[0];
             const packageName = document.getElementById('app-package').value.trim();
+
+            // 检查包名是否已存在
+            const { data: existingApps, error: queryError } = await supabase
+                .from('applications')
+                .select('package')
+                .eq('package', packageName);
+                
+            if (queryError) throw queryError;
+            
+            if (existingApps && existingApps.length > 0) {
+                showToast('该应用已存在,请使用其他包名', 'error');
+                return;
+            }
+
+            const name = document.getElementById('app-name').value.trim();
             const version = document.getElementById('app-version').value.trim();
             const description = document.getElementById('app-description').value.trim();
             const author = document.getElementById('app-author').value.trim();
-            const fileInput = document.getElementById('app-file');
-            const file = fileInput.files[0];
 
             if (!name || !packageName || !version) throw new Error('请填写所有必填字段');
             if (!file) throw new Error('请选择.rpk文件');
@@ -1045,13 +1165,23 @@
         }
     }
 
-    // 处理文件选择(从上传页面)
+    // 修改处理文件选择函数
     async function handleFileSelectForUpload(e) {
         try {
-            const file = e.target.files[0];
+            const files = e.target.files;
+            if (files.length > 1) {
+                showToast('每次只能上传一个文件', 'error');
+                e.target.value = ''; // 清空已选文件
+                return;
+            }
+
+            const file = files[0];
             if (!file) return;
 
-            if (!validateFile(file)) return;
+            if (!validateFile(file)) {
+                e.target.value = ''; // 清空无效文件
+                return;
+            }
 
             const preview = document.getElementById('upload-preview');
             preview.innerHTML = '';
@@ -1074,6 +1204,7 @@
         } catch (error) {
             showToast('选择文件时出错: ' + error.message, 'error');
             console.error('文件选择错误:', error);
+            e.target.value = ''; // 清空出错文件
         }
     }
 
