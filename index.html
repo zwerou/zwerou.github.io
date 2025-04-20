@@ -796,14 +796,34 @@
     document.addEventListener('DOMContentLoaded', async () => {
         initializeEventListeners();
         
-        // 检查现有会话
+        // 检查现有会话,但不显示提示
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
             currentUser = session.user;
             updateUIForLoggedInUser(currentUser);
+            await loadUserData(currentUser.id);
         }
         
         await initData();
+    });
+    
+    // 认证状态变化监听器中保留登录成功提示
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session?.user?.id !== currentUser?.id) {
+            // 只在新登录时显示提示
+            currentUser = session.user;
+            updateUIForLoggedInUser(currentUser);
+            loadUserData(currentUser.id);
+            showToast('登录成功', 'success');
+        } else if (event === 'SIGNED_OUT') {
+            currentUser = null;
+            document.getElementById('login-btn').style.display = 'block';
+            document.getElementById('signup-btn').style.display = 'block';
+            document.getElementById('logout-btn').style.display = 'none';
+            document.querySelector('.user-avatar').textContent = '👤';
+            document.getElementById('user-name').textContent = '我的空间';
+            showToast('已退出登录', 'success');
+        }
     });
 
     // 验证密码强度
