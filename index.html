@@ -645,11 +645,11 @@
                     <input type="text" id="app-author" placeholder="请输入应用作者名称">
                 </div>
                 <div class="form-group">
-                    <label for="app-file">选择.rpk文件</label>
+                    <label for="app-file">选择单个.rpk文件</label>
                     <input type="file" id="app-file" accept=".rpk" multiple="false">
                 </div>
                 <div class="upload-preview" id="upload-preview">
-                    <p>预览将在这里显示</p>
+                    <p>预览将在这里显示·若rpk由Studio1.1.1以上打包不支持图标解析</p>
                 </div>
                 <button class="btn btn-primary" id="submit-upload">提交上传</button>
             </div>
@@ -1670,7 +1670,7 @@
             // 尝试在根目录查找图标文件
             const allFiles = Object.keys(contents.files);
             const iconFile = allFiles
-                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|gif)$/i.test(path))
+                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|vug)$/i.test(path))
                 .map(path => contents.file(path))
                 .find(file => file !== null);
                 
