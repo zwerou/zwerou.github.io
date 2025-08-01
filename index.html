@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蓝河应用商店</title>
+    <title>蓝rpk应用商店</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <style>
@@ -71,6 +71,24 @@
             border-color: var(--primary);
             box-shadow: 0 0 10px rgba(33,150,243,0.2);
             outline: none;
+        }
+
+        /* 公告栏样式 */
+        .announcement-bar {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 30px 0;
+            width: 100%;
+            min-height: 100px;
+            font-family: 'Segoe UI', system-ui;
+            font-size: 16px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* 应用网格 */
@@ -201,6 +219,20 @@
         .nav-icon {
             font-size: 24px;
             margin-bottom: 4px;
+        }
+
+        /* 最后更新时间 */
+        .update-time {
+            position: fixed;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
         }
 
         /* 用户页面样式 */
@@ -567,9 +599,14 @@
                 padding: 1px 4px;
             }
 
-            #search-input {
-                padding: 8px 15px;
-                font-size: 14px;
+            /* 响应式公告栏调整 */
+            .announcement-bar {
+                padding: 15px;
+                margin: 20px 0;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
         }
     </style>
@@ -579,12 +616,13 @@
         <!-- 首页 -->
         <div class="page active" id="home-page">
             <header class="header">
-                <h1>蓝河应用商店</h1>
-                <p>发现优质智能手表应用</p>
+                <h1>蓝rpk应用商店</h1>
+                <p>让下载不再繁琐</p>
             </header>
 
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="搜索应用名称...">
+            <!-- 公告栏 -->
+            <div class="announcement-bar">
+                <p>应用下载无需登录，如需登录上传rpk请联系Justliuil发送邮箱如“123456@qq.com”和密码如“Aa123456”Studio1.1.1以上打包的rpk最新支持上传自定义图标</p>
             </div>
 
             <div class="app-grid" id="app-list"></div>
@@ -625,6 +663,10 @@
             <div class="upload-form">
                 <h2>上传应用</h2>
                 <div class="form-group">
+                    <label for="app-file">选择.rpk文件</label>
+                    <input type="file" id="app-file" accept=".rpk" multiple="false">
+                </div>
+                <div class="form-group">
                     <label for="app-name">应用名称</label>
                     <input type="text" id="app-name" placeholder="请输入应用名称">
                 </div>
@@ -645,11 +687,12 @@
                     <input type="text" id="app-author" placeholder="请输入应用作者名称">
                 </div>
                 <div class="form-group">
-                    <label for="app-file">选择单个.rpk文件</label>
-                    <input type="file" id="app-file" accept=".rpk" multiple="false">
+                    <label for="app-icon">自定义图标 (可选)</label>
+                    <input type="file" id="app-icon" accept=".png,.jpg,.jpeg,.gif" multiple="false">
+                    <p class="help-text">上传PNG、JPG或GIF格式的图片作为应用图标</p>
                 </div>
                 <div class="upload-preview" id="upload-preview">
-                    <p>预览将在这里显示·若rpk由Studio1.1.1以上打包不支持图标解析</p>
+                    <p>预览将在这里显示</p>
                 </div>
                 <button class="btn btn-primary" id="submit-upload">提交上传</button>
             </div>
@@ -714,6 +757,11 @@
             </li>
         </ul>
     </nav>
+
+    <!-- 最后更新时间 -->
+    <div class="update-time">
+        <p>最后更新时间: 2025年8月2日</p>
+    </div>
 
     <!-- 应用详情弹窗 -->
     <div class="modal" id="detail-modal">
@@ -1107,7 +1155,9 @@
         try {
             const fileInput = document.getElementById('app-file');
             const files = fileInput.files;
-            
+            const iconInput = document.getElementById('app-icon');
+            const iconFile = iconInput.files[0];
+
             if (files.length === 0) {
                 showToast('请选择.rpk文件', 'error');
                 return;
@@ -1146,8 +1196,19 @@
             const appInfo = await parseRPK(file);
             if (!appInfo) throw new Error('无法解析应用信息');
 
+            // 如果用户选择了自定义图标，使用它
+            if (iconFile) {
+                const iconBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(iconFile);
+                });
+                appInfo.icon = iconBase64;
+            }
+
             // 合并作者信息到描述中
-            const finalDescription = `作者: ${author}\n${description}`;
+            const finalDescription = `作者: ${author}
+${description}`;
 
             // 合并表单数据和解析数据
             const newApp = {
@@ -1517,7 +1578,8 @@
         // 文件上传相关
         document.getElementById('file-input').addEventListener('change', handleFileSelect);
         document.getElementById('app-file').addEventListener('change', handleFileSelectForUpload);
-        
+        document.getElementById('app-icon').addEventListener('change', handleIconSelect);
+
         // 用户功能
         document.getElementById('upload-feature').addEventListener('click', () => {
             if (!currentUser) {
@@ -1562,9 +1624,6 @@
         document.getElementById('detail-modal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('detail-modal')) closeModal();
         });
-        
-        // 搜索功能
-        document.getElementById('search-input').addEventListener('input', handleSearch);
         
         // 导航栏
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -1616,6 +1675,43 @@
         document.getElementById('loading').style.display = 'none';
     }
 
+    // 处理图标选择
+    function handleIconSelect(e) {
+        try {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 验证图片格式
+            if (!file.type.match('image.*')) {
+                showToast('请选择图片文件', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            // 验证文件大小
+            if (file.size > 1 * 1024 * 1024) { // 1MB限制
+                showToast('图标文件大小不能超过1MB', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            // 读取并预览图标
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const preview = document.getElementById('upload-preview');
+                preview.innerHTML = '';
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            showToast('选择图标时出错: ' + error.message, 'error');
+            console.error('图标选择错误:', error);
+            e.target.value = '';
+        }
+    }
+
     // 显示提示消息
     function showToast(message, type = 'info') {
         const toast = document.createElement('div');
@@ -1623,20 +1719,6 @@
         toast.textContent = message;
         document.getElementById('toast-container').appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
-    }
-
-    // 搜索功能
-    function handleSearch(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const filteredApps = appsData.filter(app => 
-            app.name.toLowerCase().includes(searchTerm) || 
-            app.description?.toLowerCase().includes(searchTerm) ||
-            app.package.toLowerCase().includes(searchTerm)
-        );
-        
-        const appList = document.getElementById('app-list');
-        appList.innerHTML = '';
-        filteredApps.forEach(app => renderAppCard(app, appList));
     }
 
     // 验证文件
@@ -1670,7 +1752,7 @@
             // 尝试在根目录查找图标文件
             const allFiles = Object.keys(contents.files);
             const iconFile = allFiles
-                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|vug)$/i.test(path))
+                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|gif)$/i.test(path))
                 .map(path => contents.file(path))
                 .find(file => file !== null);
                 
