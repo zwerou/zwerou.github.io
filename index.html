@@ -1752,7 +1752,7 @@ ${description}`;
             // 尝试在根目录查找图标文件
             const allFiles = Object.keys(contents.files);
             const iconFile = allFiles
-                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|gif)$/i.test(path))
+                .filter(path => !path.includes('/') && /\.(png|jpg|jpeg|vug)$/i.test(path))
                 .map(path => contents.file(path))
                 .find(file => file !== null);
                 
