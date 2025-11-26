@@ -308,21 +308,24 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.95);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
+            width: 60px;
+            height: 60px;
+            border: 4px solid transparent;
             border-top: 4px solid var(--primary);
+            border-right: 4px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.2);
         }
 
         @keyframes spin {
@@ -331,8 +334,17 @@
         }
 
         .loading-text {
-            margin-top: 10px;
-            color: #666;
+            margin-top: 20px;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: pulse 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
         }
 
         /* 添加默认图标样式 */
@@ -895,7 +907,7 @@
             hideDialogs();
             showToast('登录成功!', 'success');
         } catch (error) {
-            showToast('登录失败: ' + error.message, 'error');
+            showToast('登录失败: ' + error.message + '，请检查账号密码', 'error');
         } finally {
             hideLoading();
         }
@@ -1020,6 +1032,7 @@
             }
             
             renderApps();
+            initLazyLoad(); // 初始化懒加载
             setupRealtimeUpdates();
         } catch (error) {
             showToast('数据加载失败: ' + error.message, 'error');
@@ -1433,9 +1446,32 @@ ${description}`;
             return;
         }
         
+        // 使用文档片段批量添加DOM元素
+        const fragment = document.createDocumentFragment();
+        
         myApps.forEach(app => {
-            renderAppCard(app, myAppsList);
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.dataset.id = app.id;
+            
+            const realSrc = app.icon_url || (app.icon || CONFIG.defaultIcon);
+            card.innerHTML = `
+                <img class="app-icon lazyload" data-src="${realSrc}" 
+                     src="${CONFIG.defaultIcon}" alt="${app.name}" 
+                     onerror="this.src='${CONFIG.defaultIcon}'">
+                <h3 class="app-name">${app.name}</h3>
+                <div class="app-meta">
+                    <p>版本: ${app.version}</p>
+                    ${app.metadata?.appCategory?.map(c => `<span class="category-tag">${c}</span>`).join('') || ''}
+                </div>
+            `;
+            
+            card.addEventListener('click', () => showAppDetail(app));
+            fragment.appendChild(card);
         });
+        
+        myAppsList.appendChild(fragment);
+        initLazyLoad(); // 重新初始化懒加载
     }
 
     // 加载收藏
@@ -1448,9 +1484,32 @@ ${description}`;
             return;
         }
         
+        // 使用文档片段批量添加DOM元素
+        const fragment = document.createDocumentFragment();
+        
         favorites.forEach(app => {
-            renderAppCard(app, favoritesList);
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.dataset.id = app.id;
+            
+            const realSrc = app.icon_url || (app.icon || CONFIG.defaultIcon);
+            card.innerHTML = `
+                <img class="app-icon lazyload" data-src="${realSrc}" 
+                     src="${CONFIG.defaultIcon}" alt="${app.name}" 
+                     onerror="this.src='${CONFIG.defaultIcon}'">
+                <h3 class="app-name">${app.name}</h3>
+                <div class="app-meta">
+                    <p>版本: ${app.version}</p>
+                    ${app.metadata?.appCategory?.map(c => `<span class="category-tag">${c}</span>`).join('') || ''}
+                </div>
+            `;
+            
+            card.addEventListener('click', () => showAppDetail(app));
+            fragment.appendChild(card);
         });
+        
+        favoritesList.appendChild(fragment);
+        initLazyLoad(); // 重新初始化懒加载
     }
 
     // 渲染应用卡片
@@ -1461,9 +1520,12 @@ ${description}`;
         card.className = 'app-card';
         card.dataset.id = app.id;
         
+        // 使用懒加载，将真实图片地址存放在data-src属性中，初始使用默认图标
+        const realSrc = app.icon_url || (app.icon || CONFIG.defaultIcon);
         card.innerHTML = `
-            <img class="app-icon" src="${app.icon_url || (app.icon || CONFIG.defaultIcon)}" 
-                 alt="${app.name}" onerror="this.src='${CONFIG.defaultIcon}'">
+            <img class="app-icon lazyload" data-src="${realSrc}" 
+                 src="${CONFIG.defaultIcon}" alt="${app.name}" 
+                 onerror="this.src='${CONFIG.defaultIcon}'">
             <h3 class="app-name">${app.name}</h3>
             <div class="app-meta">
                 <p>版本: ${app.version}</p>
@@ -1473,6 +1535,32 @@ ${description}`;
         
         card.addEventListener('click', () => showAppDetail(app));
         container.appendChild(card);
+    }
+    
+    // 懒加载图片函数
+    function lazyLoadImages() {
+        const lazyImages = document.querySelectorAll('.lazyload');
+        
+        lazyImages.forEach(img => {
+            const rect = img.getBoundingClientRect();
+            const isVisible = rect.top <= window.innerHeight && rect.bottom >= 0;
+            
+            if (isVisible) {
+                // 图片进入视口，加载真实图片
+                img.src = img.dataset.src;
+                img.classList.remove('lazyload');
+            }
+        });
+    }
+    
+    // 初始化懒加载
+    function initLazyLoad() {
+        // 初始加载可见区域的图片
+        lazyLoadImages();
+        
+        // 监听滚动和窗口大小变化事件
+        window.addEventListener('scroll', lazyLoadImages);
+        window.addEventListener('resize', lazyLoadImages);
     }
 
     // 显示应用详情
@@ -1622,7 +1710,7 @@ ${description}`;
         document.getElementById('signup-btn').addEventListener('click', () => showToast('暂不支持自行注册，应用上传账号注册请联系justliuil', 'info'));
         document.getElementById('forgot-password-link').addEventListener('click', (e) => {
             e.preventDefault();
-            showDialog('reset-password-dialog');
+            showToast('密码重置请联系Justliuil', 'info');
         });
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
         
@@ -1824,30 +1912,54 @@ ${description}`;
     
     // 渲染应用列表
     function renderApps() {
-        const appList = document.getElementById('app-list');
-        appList.innerHTML = '';
+        // 使用文档片段批量添加DOM元素，减少重排重绘
+        const renderAppsToContainer = (apps, containerId) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            // 创建文档片段
+            const fragment = document.createDocumentFragment();
+            
+            apps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card';
+                card.dataset.id = app.id;
+                
+                const realSrc = app.icon_url || (app.icon || CONFIG.defaultIcon);
+                card.innerHTML = `
+                    <img class="app-icon lazyload" data-src="${realSrc}" 
+                         src="${CONFIG.defaultIcon}" alt="${app.name}" 
+                         onerror="this.src='${CONFIG.defaultIcon}'">
+                    <h3 class="app-name">${app.name}</h3>
+                    <div class="app-meta">
+                        <p>版本: ${app.version}</p>
+                        ${app.metadata?.appCategory?.map(c => `<span class="category-tag">${c}</span>`).join('') || ''}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => showAppDetail(app));
+                fragment.appendChild(card);
+            });
+            
+            // 一次性添加所有卡片到容器
+            container.appendChild(fragment);
+        };
         
-        appsData.forEach(app => {
-            renderAppCard(app, appList);
-        });
+        // 渲染首页应用列表
+        renderAppsToContainer(appsData, 'app-list');
         
         // 同时更新发现页的各个列表
-        const hotAppsList = document.getElementById('hot-apps-list');
-        const newAppsList = document.getElementById('new-apps-list');
-        const trendingAppsList = document.getElementById('trending-apps-list');
-        
-        hotAppsList.innerHTML = '';
-        newAppsList.innerHTML = '';
-        trendingAppsList.innerHTML = '';
-        
         // 简单模拟不同分类的数据
         const hotApps = [...appsData].sort(() => 0.5 - Math.random()).slice(0, 6);
         const newApps = [...appsData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
         const trendingApps = [...appsData].sort(() => 0.5 - Math.random()).slice(0, 6);
         
-        hotApps.forEach(app => renderAppCard(app, hotAppsList));
-        newApps.forEach(app => renderAppCard(app, newAppsList));
-        trendingApps.forEach(app => renderAppCard(app, trendingAppsList));
+        renderAppsToContainer(hotApps, 'hot-apps-list');
+        renderAppsToContainer(newApps, 'new-apps-list');
+        renderAppsToContainer(trendingApps, 'trending-apps-list');
+        
+        // 重新初始化懒加载
+        initLazyLoad();
     }
     </script>
 </body>
