@@ -222,18 +222,23 @@
         }
 
         /* 最后更新时间 */
+    .update-time {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid #eee;
+        text-align: center;
+        font-size: 11px;
+        color: #666;
+        width: 100%;
+    }
+    
+    @media screen and (max-width: 768px) {
         .update-time {
-            position: fixed;
-            bottom: 70px;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 10px 0;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+            font-size: 10px;
+            margin-top: 8px;
+            padding-top: 5px;
         }
+    }
 
         /* 用户页面样式 */
         .user-header {
@@ -655,6 +660,12 @@
                         <span>我的收藏</span>
                     </li>
                 </ul>
+                <!-- 联系按钮 -->
+                <div style="margin-top: 30px; padding-bottom: 100px; text-align: center;">
+                    <a href="https://qm.qq.com/q/8lthLkl6RG" class="btn btn-primary" target="_blank" style="padding: 12px 30px; font-size: 16px;">
+                        <span style="margin-right: 8px;">👨‍💻</span>联系Justliuil
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -663,7 +674,7 @@
             <div class="upload-form">
                 <h2>上传应用</h2>
                 <div class="form-group">
-                    <label for="app-file">选择.rpk文件</label>
+                    <label for="app-file">选择.rpk文件（选择后自动填充以下信息）</label>
                     <input type="file" id="app-file" accept=".rpk" multiple="false">
                 </div>
                 <div class="form-group">
@@ -679,7 +690,7 @@
                     <input type="text" id="app-version" placeholder="请输入版本号">
                 </div>
                 <div class="form-group">
-                    <label for="app-description">应用描述</label>
+                    <label for="app-description">应用描述（请自行填写）</label>
                     <textarea id="app-description" placeholder="请输入应用描述"></textarea>
                 </div>
                 <div class="form-group">
@@ -687,12 +698,12 @@
                     <input type="text" id="app-author" placeholder="请输入应用作者名称">
                 </div>
                 <div class="form-group">
-                    <label for="app-icon">自定义图标 (可选)</label>
+                    <label for="app-icon">自定义图标 (未添加将使用包内图标1.1.1以上无图标)</label>
                     <input type="file" id="app-icon" accept=".png,.jpg,.jpeg,.gif" multiple="false">
                     <p class="help-text">上传PNG、JPG或GIF格式的图片作为应用图标</p>
                 </div>
                 <div class="upload-preview" id="upload-preview">
-                    <p>预览将在这里显示</p>
+                    <p>图标预览将在这里显示</p>
                 </div>
                 <button class="btn btn-primary" id="submit-upload">提交上传</button>
             </div>
@@ -756,12 +767,11 @@
                 </a>
             </li>
         </ul>
+        <!-- 最后更新时间 -->
+        <div class="update-time">
+            <p>最后更新时间: 2025年11月26日</p>
+        </div>
     </nav>
-
-    <!-- 最后更新时间 -->
-    <div class="update-time">
-        <p>最后更新时间: 2025年8月2日</p>
-    </div>
 
     <!-- 应用详情弹窗 -->
     <div class="modal" id="detail-modal">
@@ -853,25 +863,6 @@
         }
         
         await initData();
-    });
-    
-    // 认证状态变化监听器中保留登录成功提示
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session?.user?.id !== currentUser?.id) {
-            // 只在新登录时显示提示
-            currentUser = session.user;
-            updateUIForLoggedInUser(currentUser);
-            loadUserData(currentUser.id);
-            showToast('登录成功', 'success');
-        } else if (event === 'SIGNED_OUT') {
-            currentUser = null;
-            document.getElementById('login-btn').style.display = 'block';
-            document.getElementById('signup-btn').style.display = 'block';
-            document.getElementById('logout-btn').style.display = 'none';
-            document.querySelector('.user-avatar').textContent = '👤';
-            document.getElementById('user-name').textContent = '我的空间';
-            showToast('已退出登录', 'success');
-        }
     });
 
     // 验证密码强度
@@ -1105,13 +1096,16 @@
             return;
         }
 
+        // 存储文件路径，用于可能的清理操作
+        let filePath = null;
+
         try {
             showLoading();
             
             // 上传文件
             const timestamp = Date.now();
             const fileName = `${appData.package}_${timestamp}.rpk`;
-            const filePath = `${currentUser.id}/${fileName}`;
+            filePath = `${currentUser.id}/${fileName}`;
 
             const { data: fileData, error: uploadError } = await supabase.storage
                 .from(SUPABASE.STORAGE_BUCKET)
@@ -1145,6 +1139,23 @@
         } catch (error) {
             showToast('上传失败: ' + error.message, 'error');
             console.error('上传错误:', error);
+            
+            // 如果文件已经上传但后续操作失败，删除已上传的文件
+            if (filePath) {
+                try {
+                    const { error: removeError } = await supabase.storage
+                        .from(SUPABASE.STORAGE_BUCKET)
+                        .remove([filePath]);
+                    
+                    if (removeError) {
+                        console.error('清理已上传文件失败:', removeError);
+                    } else {
+                        console.log('已上传的文件已成功清理:', filePath);
+                    }
+                } catch (cleanupError) {
+                    console.error('清理文件时发生错误:', cleanupError);
+                }
+            }
         } finally {
             hideLoading();
         }
@@ -1608,7 +1619,7 @@ ${description}`;
         // 按钮事件
         document.getElementById('submit-upload').addEventListener('click', handleManualUpload);
         document.getElementById('login-btn').addEventListener('click', () => showDialog('login-dialog'));
-        document.getElementById('signup-btn').addEventListener('click', () => showDialog('signup-dialog'));
+        document.getElementById('signup-btn').addEventListener('click', () => showToast('暂不支持自行注册，应用上传账号注册请联系justliuil', 'info'));
         document.getElementById('forgot-password-link').addEventListener('click', (e) => {
             e.preventDefault();
             showDialog('reset-password-dialog');
@@ -1643,7 +1654,8 @@ ${description}`;
         
         // 监听认证状态变化
         supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
+            if (event === 'SIGNED_IN' && session?.user?.id !== currentUser?.id) {
+                // 只在新登录时显示提示，避免重复触发
                 currentUser = session.user;
                 updateUIForLoggedInUser(currentUser);
                 loadUserData(currentUser.id);
@@ -1743,7 +1755,9 @@ ${description}`;
             // 读取 manifest.json
             const manifestFile = contents.file('manifest.json');
             if (!manifestFile) {
-                throw new Error('无法找到 manifest.json 文件');
+                const errorMsg = '无法找到 manifest.json 文件';
+                showToast('RPK解析错误: ' + errorMsg, 'error');
+                throw new Error(errorMsg);
             }
             
             const manifestContent = await manifestFile.async('text');
@@ -1756,22 +1770,35 @@ ${description}`;
                 .map(path => contents.file(path))
                 .find(file => file !== null);
                 
-            if (!iconFile) {
-                throw new Error('无法在根目录找到图标文件');
+            // 如果找不到图标文件，使用默认图标
+            let iconBase64 = CONFIG.defaultIcon;
+            if (iconFile) {
+                const iconBlob = await iconFile.async('blob');
+                iconBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(iconBlob);
+                });
+            } else {
+                showToast('未找到图标文件，将使用默认图标', 'warning');
             }
             
-            // 转换图标为 base64
-            const iconBlob = await iconFile.async('blob');
-            const iconBase64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(iconBlob);
-            });
-            
             // 验证必填字段
-            if (!manifest.package) throw new Error('缺少必填字段: package');
-            if (!manifest.name) throw new Error('缺少必填字段: name');
-            if (!manifest.versionCode) throw new Error('缺少必填字段: versionCode');
+            if (!manifest.package) {
+                const errorMsg = '缺少必填字段: package';
+                showToast('RPK解析错误: ' + errorMsg, 'error');
+                throw new Error(errorMsg);
+            }
+            if (!manifest.name) {
+                const errorMsg = '缺少必填字段: name';
+                showToast('RPK解析错误: ' + errorMsg, 'error');
+                throw new Error(errorMsg);
+            }
+            if (!manifest.versionCode) {
+                const errorMsg = '缺少必填字段: versionCode';
+                showToast('RPK解析错误: ' + errorMsg, 'error');
+                throw new Error(errorMsg);
+            }
             
             // 从manifest提取数据
             return {
@@ -1790,7 +1817,7 @@ ${description}`;
                 }
             };
         } catch (error) {
-            showToast('RPK解析错误: ' + error.message, 'error');
+            // 错误已经在具体检查点处理，这里不需要重复显示
             throw error;
         }
     }
