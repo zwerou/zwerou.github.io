@@ -243,44 +243,64 @@
         /* 用户页面样式 */
         .user-header {
             text-align: center;
-            padding: 30px 0;
+            padding: 40px 20px 20px;
+            background: white;
+            border-radius: 20px;
+            margin: 20px auto;
+            max-width: 400px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
         }
 
         .user-avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background: #eee;
-            margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--primary), #0d8bf2);
+            margin: 0 auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
         }
 
         .feature-list {
             list-style: none;
-            margin: 20px 0;
+            margin: 30px auto;
+            padding: 0;
+            max-width: 400px;
         }
 
         .feature-item {
-            padding: 15px 20px;
+            padding: 18px 24px;
             background: white;
-            margin: 10px 0;
-            border-radius: 10px;
+            margin: 12px 0;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .feature-item:hover {
-            background: #f5f5f5;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .feature-icon {
-            margin-right: 15px;
-            font-size: 20px;
+            margin-right: 18px;
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
         }
 
         /* 提示框样式 */
@@ -454,13 +474,37 @@
 
         #login-section {
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .login-btn {
-            margin: 10px auto;
+            margin: 0;
             display: block;
-            width: 200px;
+            width: 100%;
+            max-width: 240px;
             text-align: center;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
         }
 
         .category-tag {
@@ -639,7 +683,7 @@
 
             <!-- 公告栏 -->
             <div class="announcement-bar">
-                <p>应用下载无需登录，如需登录上传rpk请联系Justliuil发送邮箱如“123456@qq.com”和密码如“Aa123456”以注册账号•Studio1.1.1以上打包的rpk最新支持上传自定义图标</p>
+                <p>应用表盘下载无需登录，如需登录上传rpk请联系Justliuil以注册账号•最新支持上传自定义图标，最新支持上传表盘文件</p>
             </div>
 
             <div class="app-grid" id="app-list"></div>
@@ -660,12 +704,12 @@
                 <ul class="feature-list">
                     <li class="feature-item" id="upload-feature">
                         <span class="feature-icon">📤</span>
-                        <span>上传应用</span>
+                        <span>上传应用或表盘文件</span>
                         <input type="file" id="file-input" accept=".rpk" multiple="false" style="display: none;">
                     </li>
                     <li class="feature-item" id="my-apps-feature">
                         <span class="feature-icon">📱</span>
-                        <span>我的应用</span>
+                        <span>我的应用或表盘</span>
                     </li>
                     <li class="feature-item" id="favorites-feature">
                         <span class="feature-icon">⭐️</span>
@@ -673,18 +717,20 @@
                     </li>
                 </ul>
                 <!-- 联系按钮 -->
-                <div style="margin-top: 30px; padding-bottom: 100px; text-align: center;">
-                    <a href="https://qm.qq.com/q/8lthLkl6RG" class="btn btn-primary" target="_blank" style="padding: 12px 30px; font-size: 16px;">
-                        <span style="margin-right: 8px;">👨‍💻</span>联系Justliuil
-                    </a>
-                </div>
+                <ul class="feature-list" style="margin-top: 30px; padding-bottom: 100px;">
+                    <li class="feature-item" style="justify-content: center; cursor: pointer;">
+                        <a href="https://qm.qq.com/q/8lthLkl6RG" class="btn btn-primary login-btn" target="_blank" style="margin: 0;\ width: auto;\ display: inline-flex; align-items: center; justify-content: center;">
+                            <span style="margin-right: 8px;">👨‍💻</span>联系Justliuil
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
 
         <!-- 上传页面 -->
         <div class="page" id="upload-page">
             <div class="upload-form">
-                <h2>上传应用</h2>
+                <h2>上传应用或表盘文件</h2>
                 <div class="form-group">
                     <label for="app-file">选择.rpk文件（选择后自动填充以下信息）</label>
                     <input type="file" id="app-file" accept=".rpk" multiple="false">
@@ -710,7 +756,7 @@
                     <input type="text" id="app-author" placeholder="请输入应用作者名称">
                 </div>
                 <div class="form-group">
-                    <label for="app-icon">自定义图标 (未添加将使用包内图标1.1.1以上无图标)</label>
+                    <label for="app-icon">自定义图标 (未选将使用包内图标.studio1.1.1以上无图标)</label>
                     <input type="file" id="app-icon" accept=".png,.jpg,.jpeg,.gif" multiple="false">
                     <p class="help-text">上传PNG、JPG或GIF格式的图片作为应用图标</p>
                 </div>
@@ -1234,10 +1280,16 @@
             const finalDescription = `作者: ${author}
 ${description}`;
 
+            // 检查是否为表盘应用，如果是则在应用名后添加"（表盘）"
+            let finalName = name;
+            if (appInfo.isWatchface && !finalName.includes('（表盘）') && !finalName.includes('(表盘)')) {
+                finalName = `${finalName} (表盘)`;
+            }
+            
             // 合并表单数据和解析数据
             const newApp = {
                 ...appInfo,
-                name: name,
+                name: finalName,
                 package: packageName,
                 version: version,
                 description: finalDescription
@@ -1888,9 +1940,17 @@ ${description}`;
                 throw new Error(errorMsg);
             }
             
+            // 检查是否为表盘应用
+            let appName = manifest.name;
+            const isWatchface = manifest.router && manifest.router.watchfaces;
+            
+            if (isWatchface) {
+                appName = `${appName} (表盘)`;
+            }
+            
             // 从manifest提取数据
             return {
-                name: manifest.name,
+                name: appName,
                 package: manifest.package,
                 version: manifest.versionName || `${manifest.versionCode}`,
                 versionCode: manifest.versionCode,
@@ -1902,7 +1962,8 @@ ${description}`;
                 deviceTypeList: manifest.deviceTypes || ['watch'],
                 distributionRules: {
                     minAPILevel: manifest.minPlatformVersion || 1
-                }
+                },
+                isWatchface: isWatchface
             };
         } catch (error) {
             // 错误已经在具体检查点处理，这里不需要重复显示
