@@ -13,6 +13,72 @@
             --error: #f44336;
             --background: #f5f5f5;
             --card-bg: #fff;
+/* 通用光影渐变效果 */
+.app-card, .upload-form, .user-header, .feature-item {
+    background: var(--shadow-gradient);
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.1),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}
+
+/* 按钮光影效果增强 */
+.btn {
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 4px 16px rgba(0,0,0,0.15),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}
+
+/* 搜索框光影效果 */
+#search-input {
+    background: var(--shadow-gradient);
+    box-shadow: 
+        0 4px 16px rgba(0,0,0,0.1),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}
+
+/* 模态框光影效果 */
+.modal-content {
+    background: var(--shadow-gradient);
+    box-shadow: 
+        0 20px 60px rgba(0,0,0,0.2),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}
+
+/* 应用图标光影效果 */
+.app-icon {
+    box-shadow: 
+        0 8px 24px rgba(0,0,0,0.15),
+        0 0 0 1px var(--border-gradient);
+}
+
+/* 底部导航栏光影效果 */
+.footer-nav {
+    background: var(--shadow-gradient);
+    box-shadow: 
+        0 -4px 16px rgba(0,0,0,0.08),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}
+
+/* 头部光影效果 */
+.header {
+    background: var(--shadow-gradient);
+    box-shadow: 
+        0 4px 16px rgba(0,0,0,0.1),
+        0 0 0 1px var(--border-gradient),
+        inset 0 1px 0 var(--shadow-light);
+}            /* 光影渐变变量 */
+            --shadow-gradient: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+            --shadow-light: rgba(255,255,255,0.35);
+            --shadow-dark: rgba(0,0,0,0.1);
+            --border-gradient: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+            --glow-gradient: linear-gradient(135deg, var(--primary), rgba(33, 150, 243, 0.2));
         }
 
         * {
@@ -104,13 +170,33 @@
             background: var(--card-bg);
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #0d8bf2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            transform-origin: left;
         }
 
         .app-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+        }
+
+        .app-card:hover::before {
+            transform: scaleX(1);
         }
 
         .app-icon {
@@ -137,7 +223,7 @@
 
         /* 详情弹窗 */
         .modal {
-            display: none;
+            display: flex;
             position: fixed;
             top: 0;
             left: 0;
@@ -145,21 +231,39 @@
             bottom: 0;
             background: rgba(0,0,0,0.5);
             z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(0px);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            backdrop-filter: blur(8px);
         }
 
         .modal-content {
             position: relative;
             background: white;
             max-width: 800px;
-            margin: 50px auto;
+            width: 90%;
+            margin: 20px;
             padding: 30px;
             border-radius: 15px;
-            animation: modalSlide 0.3s ease-out;
+            transform: translateY(-30px) scale(0.95);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        @keyframes modalSlide {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .modal.active .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
         }
 
         .modal-close {
@@ -169,6 +273,19 @@
             font-size: 28px;
             cursor: pointer;
             color: #666;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--primary);
+            transform: scale(1.1);
         }
 
         .detail-section {
@@ -381,22 +498,102 @@
 
         /* 按钮样式 */
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 500;
             margin: 5px;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn-primary {
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #0d8bf2);
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #0d8bf2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.35);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.35);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(244, 67, 54, 0.35);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.35);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* 输入框动画 */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="file"] {
+            transition: all 0.3s ease;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+            outline: none;
+            transform: translateY(-1px);
         }
 
         /* 上传表单样式 */
@@ -816,7 +1013,7 @@
             </li>
             <li class="nav-item">
                 <a href="#discover" class="nav-link" data-page="discover-page">
-                    <span class="nav-icon">🔍</span>
+                    <span class="nav-icon">✨</span>
                     <span>发现</span>
                 </a>
             </li>
@@ -1368,37 +1565,38 @@ ${description}`;
     }
 
     // 收藏功能
-    async function toggleFavorite(app) {
+    async function toggleFavorite(appId, isFavorite) {
         if (!currentUser) {
             showToast('请先登录', 'error');
             return;
         }
         
         try {
-            // 查询是否已收藏
-            const { data, error } = await supabaseClient
-                .from('favorites')
-                .select()
-                .eq('app_id', app.id)
-                .eq('user_id', currentUser.id);
-                
-            if (error) throw error;
-            
-            if (data.length > 0) {
+            if (isFavorite) {
                 // 已收藏，取消
-                const { error: delErr } = await supabaseClient
+                const { data: existingFav, error: getErr } = await supabaseClient
                     .from('favorites')
-                    .delete()
-                    .eq('id', data[0].id);
+                    .select()
+                    .eq('app_id', appId)
+                    .eq('user_id', currentUser.id);
                     
-                if (delErr) throw delErr;
-                showToast('已取消收藏', 'success');
+                if (getErr) throw getErr;
+                
+                if (existingFav.length > 0) {
+                    const { error: delErr } = await supabaseClient
+                        .from('favorites')
+                        .delete()
+                        .eq('id', existingFav[0].id);
+                        
+                    if (delErr) throw delErr;
+                    showToast('已取消收藏', 'success');
+                }
             } else {
                 // 未收藏，添加
                 const { error: insErr } = await supabaseClient
                     .from('favorites')
                     .insert([{ 
-                        app_id: app.id,
+                        app_id: appId,
                         user_id: currentUser.id
                     }]);
                     
@@ -1413,7 +1611,11 @@ ${description}`;
             const modalBody = document.getElementById('modal-body');
             const btn = modalBody.querySelector('button[onclick^="toggleFavorite"]');
             if (btn) {
-                btn.textContent = data.length > 0 ? '🤍 收藏' : '❤️ 取消收藏';
+                // 根据当前收藏状态切换按钮文本和样式
+                btn.textContent = isFavorite ? '🤍 收藏' : '❤️ 取消收藏';
+                btn.className = `btn ${isFavorite ? 'btn-success' : 'btn-danger'}`;
+                // 切换onclick参数
+                btn.onclick = () => toggleFavorite(appId, !isFavorite);
             }
         } catch (error) {
             showToast('操作失败: ' + error.message, 'error');
@@ -1624,62 +1826,39 @@ ${description}`;
         
         const modal = document.getElementById('detail-modal');
         const modalBody = document.getElementById('modal-body');
-        modal.style.display = 'block';
         
         modalBody.innerHTML = `
             <div class="detail-section">
                 <img src="${app.icon_url || (app.icon || CONFIG.defaultIcon)}" 
-                     class="app-icon" alt="${app.name}" onerror="this.src='${CONFIG.defaultIcon}'">
+                     alt="${app.name}" class="app-icon" style="width: 120px; height: 120px; border-radius: 24px; margin: 0 auto 20px; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
                 <h2>${app.name}</h2>
-                <p><strong>包名:</strong> ${app.package}</p>
-                <p><strong>版本:</strong> ${app.version}</p>
-                ${app.description ? `<p><strong>描述:</strong> ${app.description}</p>` : ''}
-                ${app.metadata?.owner_id === currentUser?.id ? '<p><strong>状态:</strong> 我的应用</p>' : ''}
+                <p class="app-meta">版本: ${app.version}</p>
+                <p style="margin-top: 15px; line-height: 1.6;">${app.description || '暂无描述'}</p>
             </div>
-            
             <div class="detail-section">
-                <h3 class="detail-title">功能特性</h3>
-                <ul>
-                    ${app.metadata?.features?.length ? 
-                      app.metadata.features.map(f => `<li>${f.name}: ${f.description || ''}</li>`).join('') : 
-                      '<li>无特殊功能声明</li>'}
-                </ul>
+                <h3 class="detail-title">应用信息</h3>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                        <strong>包名:</strong> ${app.package}
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                        <strong>上传时间:</strong> ${app.created_at ? new Date(app.created_at).toLocaleString() : '未知'}
+                    </div>
+                </div>
             </div>
-            
             <div class="detail-section">
-                <h3 class="detail-title">系统要求</h3>
-                <p>设备类型: ${app.metadata?.deviceTypeList?.join(', ') || '通用设备'}</p>
-                ${app.metadata?.distributionRules?.minAPILevel ? 
-                  `<p>最低API等级: ${app.metadata.distributionRules.minAPILevel}</p>` : ''}
-                
-                ${app.metadata?.permissions?.length ? `
-                    <h3 class="detail-title">权限要求</h3>
-                    <ul>
-                        ${app.metadata.permissions.map(p => `<li>${p.name}: ${p.description || ''}</li>`).join('')}
-                    </ul>
-                ` : ''}
-            </div>
-            
-            <div class="detail-section" style="display:flex;justify-content:space-around;">
-                ${currentUser ? `
-                <button class="btn btn-primary" onclick="toggleFavorite(${JSON.stringify(app).replace(/"/g, '&quot;')})">
-                    ${isFavorite ? '❤️ 取消收藏' : '🤍 收藏'}
-                </button>
-                ` : ''}
-                
-                ${app.download_url ? `
-                <a href="${app.download_url}" class="btn btn-primary" download="${app.name}.rpk">
-                    🚀 下载应用
-                </a>
-                ` : ''}
-                
-                ${isMyApp ? `
-                <button class="btn btn-primary" onclick="deleteApp('${app.id}')">
-                    🗑️ 删除
-                </button>
-                ` : ''}
-            </div>
-        `;
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                    <a href="${app.download_url}" class="btn btn-primary" target="_blank" style="padding: 12px 24px; font-size: 16px; text-decoration: none;">立即下载</a>
+                    ${currentUser ? `<button class="btn ${isFavorite ? 'btn-danger' : 'btn-success'}" onclick="toggleFavorite('${app.id}', ${isFavorite})" style="padding: 12px 24px; font-size: 16px; cursor: pointer;">${isFavorite ? '❤️ 取消收藏' : '🤍 收藏'}</button>` : ''}
+                    ${isMyApp ? `<button class="btn btn-warning" onclick="deleteApp('${app.id}')" style="padding: 12px 24px; font-size: 16px; cursor: pointer;">删除应用</button>` : ''}
+                </div>
+            </div>`;
+        
+        // 添加active类以触发动画
+        modal.classList.add('active');
+        
+        // 绑定关闭按钮事件
+        document.querySelector('.modal-close').onclick = closeModal;
     }
     
     // 页面切换
@@ -1816,7 +1995,13 @@ ${description}`;
 
     // 关闭弹窗函数
     function closeModal() {
-        document.getElementById('detail-modal').style.display = 'none';
+        const modal = document.getElementById('detail-modal');
+        modal.classList.remove('active');
+        
+        // 清理事件监听器和内容
+        setTimeout(() => {
+            document.getElementById('modal-body').innerHTML = '';
+        }, 300);
     }
 
     // 显示加载动画
