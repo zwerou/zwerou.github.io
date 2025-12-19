@@ -511,6 +511,75 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
+        /* 响应式按钮样式 - 手机适配 */
+        @media screen and (max-width: 768px) {
+            /* 详情页按钮容器适配 */
+            .detail-section > div {
+                gap: 10px !important;
+            }
+            
+            /* 详情页按钮适配 */
+            .detail-section .btn {
+                padding: 8px 14px !important;
+                font-size: 13px !important;
+                min-width: 90px !important;
+                height: 40px !important;
+                flex-shrink: 0 !important;
+            }
+            
+            /* 详情页下载按钮适配 */
+            .detail-section .btn-primary {
+                min-width: 110px !important;
+                height: 44px !important;
+                font-size: 14px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            /* 超小屏幕按钮容器适配 */
+            .detail-section > div {
+                gap: 8px !important;
+                padding: 5px 0 !important;
+            }
+            
+            /* 超小屏幕适配 */
+            .detail-section .btn {
+                padding: 6px 10px !important;
+                font-size: 11px !important;
+                min-width: 80px !important;
+                height: 36px !important;
+            }
+            
+            /* 超小屏幕下载按钮适配 */
+            .detail-section .btn-primary {
+                min-width: 100px !important;
+                height: 40px !important;
+                font-size: 12px !important;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            /* 极小屏幕适配 */
+            .detail-section > div {
+                gap: 5px !important;
+            }
+            
+            /* 极小屏幕按钮适配 */
+            .detail-section .btn {
+                padding: 4px 8px !important;
+                font-size: 10px !important;
+                min-width: 70px !important;
+                height: 32px !important;
+            }
+            
+            /* 极小屏幕下载按钮适配 */
+            .detail-section .btn-primary {
+                min-width: 90px !important;
+                height: 36px !important;
+                font-size: 11px !important;
+            }
+        }
+
         .btn::before {
             content: '';
             position: absolute;
@@ -1847,10 +1916,10 @@ ${description}`;
                 </div>
             </div>
             <div class="detail-section">
-                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                    <a href="${app.download_url}" class="btn btn-primary" target="_blank" style="padding: 12px 24px; font-size: 16px; text-decoration: none;">立即下载</a>
-                    ${currentUser ? `<button class="btn ${isFavorite ? 'btn-danger' : 'btn-success'}" onclick="toggleFavorite('${app.id}', ${isFavorite})" style="padding: 12px 24px; font-size: 16px; cursor: pointer;">${isFavorite ? '❤️ 取消收藏' : '🤍 收藏'}</button>` : ''}
-                    ${isMyApp ? `<button class="btn btn-warning" onclick="deleteApp('${app.id}')" style="padding: 12px 24px; font-size: 16px; cursor: pointer;">删除应用</button>` : ''}
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: nowrap; overflow-x: auto; padding: 10px 0;">
+                    ${currentUser ? `<button class="btn ${isFavorite ? 'btn-danger' : 'btn-success'}" onclick="toggleFavorite('${app.id}', ${isFavorite})" style="padding: 10px 20px; font-size: 15px; cursor: pointer; min-width: 130px; height: 48px; display: inline-flex; align-items: center; justify-content: center;">${isFavorite ? '❤️ 取消收藏' : '🤍 收藏'}</button>` : ''}
+                    <a href="${app.download_url}" class="btn btn-primary" target="_blank" style="padding: 14px 28px; font-size: 17px; text-decoration: none; min-width: 150px; height: 56px; display: inline-flex; align-items: center; justify-content: center;">立即下载</a>
+                    ${isMyApp ? `<button class="btn btn-warning" onclick="deleteApp('${app.id}')" style="padding: 10px 20px; font-size: 15px; cursor: pointer; min-width: 130px; height: 48px; display: inline-flex; align-items: center; justify-content: center;">删除应用</button>` : ''}
                 </div>
             </div>`;
         
