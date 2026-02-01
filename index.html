@@ -5,34 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>下载站停止运营提示</title>
     <style>
+        :root {
+            --primary-color: #1a2a6c;
+            --secondary-color: #b21f1f;
+            --accent-color: #fdbb2d;
+            --text-shadow: 0 0 10px rgba(255,255,255,0.8);
+            --shadow-depth: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(135deg, 
+                var(--primary-color) 20%, 
+                var(--secondary-color) 40%, 
+                var(--accent-color) 60%, 
+                var(--primary-color) 80%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow: hidden;
         }
-        
+
         .container {
             background: rgba(255, 255, 255, 0.92);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow-depth), 
+                        0 0 20px rgba(255,255,255,0.1) inset;
             padding: 40px;
             max-width: 600px;
             width: 100%;
             text-align: center;
             position: relative;
             overflow: hidden;
+            will-change: transform;
         }
-        
+
         .container::before {
             content: "";
             position: absolute;
@@ -40,88 +57,335 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: linear-gradient(90deg, 
+                transparent,
+                var(--primary-color),
+                var(--secondary-color),
+                var(--accent-color),
+                transparent);
+            animation: shimmer 3s ease-in-out infinite;
         }
-        
+
+        .container::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(26, 42, 108, 0.1),
+                rgba(178, 31, 31, 0.1),
+                rgba(253, 187, 45, 0.1),
+                transparent
+            );
+            animation: rotateLight 8s linear infinite;
+            z-index: 0;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
         h1 {
-            color: #d32f2f;
+            color: var(--secondary-color);
             font-size: 2.5rem;
             margin-bottom: 25px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            text-shadow: var(--text-shadow), 
+                        0 0 20px rgba(255,255,255,0.6);
+            position: relative;
+            display: inline-block;
         }
-        
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg,
+                transparent,
+                var(--accent-color),
+                var(--secondary-color),
+                var(--accent-color),
+                transparent);
+            border-radius: 2px;
+            animation: pulseLine 2s ease-in-out infinite;
+        }
+
         .icon {
             font-size: 4rem;
             margin-bottom: 25px;
-            color: #d32f2f;
+            color: var(--secondary-color);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+            animation: iconGlow 3s ease-in-out infinite;
         }
-        
+
         p {
             color: #444;
             font-size: 1.2rem;
             line-height: 1.7;
             margin-bottom: 35px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
         }
-        
+
         .btn {
             display: inline-block;
-            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            background: linear-gradient(to right, 
+                var(--primary-color), 
+                var(--secondary-color));
             color: white;
             text-decoration: none;
             padding: 15px 40px;
             font-size: 1.2rem;
             font-weight: 600;
             border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(178, 31, 31, 0.3);
+            transition: all 0.5s cubic-bezier(0.68,-0.55,0.265,1.55);
+            box-shadow: 0 4px 15px rgba(178, 31, 31, 0.3), 
+                        0 0 20px rgba(255,255,255,0.5) inset;
             border: none;
             cursor: pointer;
             letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
         }
-        
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255,255,255,0.3),
+                transparent);
+            transition: left 0.5s ease;
+        }
+
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(178, 31, 31, 0.4);
-            background: linear-gradient(to right, #23338c, #c92f2f);
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(178, 31, 31, 0.4), 
+                        0 0 25px rgba(255,255,255,0.6);
+            background: linear-gradient(to right, 
+                #23338c, 
+                #c92f2f);
         }
-        
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
         .btn:active {
             transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        
+
         .footer {
             margin-top: 30px;
             color: #777;
             font-size: 0.9rem;
+            text-shadow: 0 0 3px rgba(255,255,255,0.2);
         }
-        
+
+        .light-border {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 18px;
+            background: linear-gradient(45deg,
+                var(--primary-color),
+                var(--secondary-color),
+                var(--accent-color),
+                var(--primary-color));
+            background-size: 400% 400%;
+            animation: borderGlow 4s ease infinite;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+        }
+
+        /* 添加动画禁用状态 */
+        .btn.disabled {
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes rotateLight {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseLine {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes iconGlow {
+            0%, 100% { 
+                filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)) 
+                        brightness(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 20px rgba(253, 187, 45, 0.8)) 
+                        brightness(1.2);
+            }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { 
+                background-position: 0% 50%;
+                opacity: 0.5;
+            }
+            50% { 
+                background-position: 100% 50%;
+                opacity: 0.8;
+            }
+        }
+
+        /* ripple动画关键帧 */
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式优化 */
         @media (max-width: 600px) {
-            .container {
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            p {
-                font-size: 1rem;
-            }
-            
-            .btn {
-                padding: 12px 30px;
-                font-size: 1rem;
-            }
+            h1 { font-size: 2rem; }
+            p { font-size: 1rem; }
+            .btn { padding: 12px 30px; font-size: 1rem; }
+            .container { padding: 30px 20px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="icon">⚠️</div>
-        <h1>本下载站使命已经完成</h1>
-        <p>相见时难别亦难，东风无力百花残</p>
-        <a href="https://qingwear.top/store/index.php?page=2&sort=latest&order=desc" class="btn">请前往@Nebula的轻腕应用商店下载</a>
-        <div class="footer">感谢您的理解</div>
+        <div class="light-border"></div>
+        <div class="card-content">
+            <div class="icon">⚠️</div>
+            <h1>本下载站使命已经完成</h1>
+            <p>相见时难别亦难，东风无力百花残</p>
+            <a href="https://qingwear.top/store/index.php?page=1&sort=latest&order=desc&view=grid" class="btn" id="jump-btn">请前往@Nebula的轻腕应用商店下载</a>
+            <div class="footer">感谢您的理解</div>
+        </div>
     </div>
+
+    <script>
+        // 交互增强：鼠标移动时的光效反馈
+        document.querySelector('.container').addEventListener('mousemove', function(e) {
+            const card = this;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const deltaX = (x - centerX) / centerX;
+            const deltaY = (y - centerY) / centerY;
+            
+            card.style.transform = `
+                perspective(1000px)
+                rotateY(${deltaX * 2}deg)
+                rotateX(${deltaY * -2}deg)
+                translateY(-2px)
+            `;
+            
+            const shadowX = deltaX * 10;
+            const shadowY = deltaY * 10;
+            card.style.boxShadow = `
+                ${shadowX}px ${shadowY}px 40px rgba(0,0,0,0.2),
+                0 0 20px rgba(255,255,255,0.1) inset
+            `;
+        });
+        
+        document.querySelector('.container').addEventListener('mouseleave', function() {
+            this.style.transform = 'none';
+            this.style.boxShadow = `
+                0 20px 40px rgba(0,0,0,0.2),
+                0 0 20px rgba(255,255,255,0.1) inset
+            `;
+        });
+        
+        // 按钮点击光波效果 - 修复动画播放完整问题
+        document.getElementById('jump-btn').addEventListener('click', function(e) {
+            e.preventDefault(); // 阻止默认跳转
+            
+            const btn = this;
+            const targetUrl = btn.getAttribute('href');
+            
+            // 如果按钮已经处于禁用状态，直接返回
+            if (btn.classList.contains('disabled')) {
+                return;
+            }
+            
+            // 禁用按钮，防止重复点击
+            btn.classList.add('disabled');
+            
+            // 创建ripple效果
+            const ripple = document.createElement('span');
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.8);
+                transform: scale(0);
+                animation: ripple 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                width: ${size}px;
+                height: ${size}px;
+                top: ${y}px;
+                left: ${x}px;
+                pointer-events: none;
+                z-index: 1;
+            `;
+            
+            btn.appendChild(ripple);
+            
+            // 添加点击时的缩小动画
+            btn.style.transform = 'translateY(1px) scale(0.98)';
+            btn.style.transition = 'all 0.2s ease';
+            
+            // 等待动画完成后再跳转
+            setTimeout(() => {
+                // 恢复按钮状态
+                btn.style.transform = '';
+                btn.classList.remove('disabled');
+                
+                // 跳转到目标页面
+                window.location.href = targetUrl;
+            }, 800); // 与ripple动画时间保持一致
+            
+            // 清理ripple元素
+            setTimeout(() => {
+                if (ripple.parentNode === btn) {
+                    btn.removeChild(ripple);
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
